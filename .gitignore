@@ -1,0 +1,20 @@
+# debug folder
+/[Dd]ebug/
+
+#
+/.settings/
+
+#
+/.mxproject
+
+#  created by the Eclipse debugger
+/*.launch
+
+# NECESSARY
+# CubeIDE project file
+!/.project
+!/.cproject
+# linker script
+!/*.ld
+# CubeMX stm32 configure file
+!/*.ioc
