@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -268,7 +268,9 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    printf("default task\n");
+    HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+    osDelay(1000);
   }
   /* USER CODE END 5 */
 }
@@ -286,7 +288,8 @@ void StartTask02(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    printf("task 2\n");
+    osDelay(1000);
   }
   /* USER CODE END StartTask02 */
 }
