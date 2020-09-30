@@ -7,8 +7,11 @@
 #
 /.mxproject
 
-#  created by the Eclipse debugger
+# created by the Eclipse debugger
 /*.launch
+
+# vscode
+/.vscode/
 
 # NECESSARY
 # CubeIDE project file
