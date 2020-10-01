@@ -59,7 +59,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void MPU9250_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -100,13 +100,16 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-
+  printf("init mpu9250");
+  MPU9250_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+    HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -300,6 +303,43 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+/**
+  * @brief MPU9250 Init
+  * @param None
+  * @retval None
+  */
+static void MPU9250_Init(void)
+{
+  uint8_t iic_read_status = HAL_ERROR;
+  uint8_t mpu9250_who_am_i_value = 255;
+
+  iic_read_status = HAL_I2C_Mem_Read_DMA(&hi2c1, MPU9250_IIC_HAL_ADDRESS, MPU9250_WHO_AM_I, 1, &mpu9250_who_am_i_value, 1);
+  HAL_Delay(1); // wait 1ms for mpu9250_who_am_i_value ready
+
+  if(HAL_OK == iic_read_status)
+  {
+    if(MPU9250_WHO_AM_I_VALUE == mpu9250_who_am_i_value)
+    {
+      printf("MPU9250 connect successful, value ok: %d\n", mpu9250_who_am_i_value);
+    }
+    else
+    {
+      printf("MPU9250 connect successful, value wrong: %d\n", mpu9250_who_am_i_value);
+    }
+  }
+  else if(HAL_ERROR == iic_read_status)
+  {
+    printf("MPU9250 connect failed: ERROR\n");
+  }
+  else if(HAL_BUSY == iic_read_status)
+  {
+    printf("MPU9250 connect failed: BUSY\n");
+  }
+  else if(HAL_TIMEOUT == iic_read_status)
+  {
+    printf("MPU9250 connect failed: TIMEOUT\n");
+  }
+}
 /* USER CODE END 4 */
 
 /**

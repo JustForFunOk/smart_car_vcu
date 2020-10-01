@@ -69,7 +69,11 @@ void Error_Handler(void);
 #define FAST_IIC_SDA_Pin GPIO_PIN_7
 #define FAST_IIC_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
+// MPU9250
+#define MPU9250_IIC_ADDRESS     0b1101000  // pin AD0 = 0
+#define MPU9250_IIC_HAL_ADDRESS MPU9250_IIC_ADDRESS << 1
+#define MPU9250_WHO_AM_I        0x75
+#define MPU9250_WHO_AM_I_VALUE  0x73
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
