@@ -71,7 +71,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN Private defines */
 // MPU9250
 #define MPU9250_IIC_ADDRESS     0b1101000  // pin AD0 = 0
-#define MPU9250_IIC_HAL_ADDRESS MPU9250_IIC_ADDRESS << 1
+#define MPU9250_IIC_HAL_ADDRESS 0xD0  //MPU9250_IIC_ADDRESS << 1
 #define MPU9250_WHO_AM_I        0x75
 #define MPU9250_WHO_AM_I_VALUE  0x73
 /* USER CODE END Private defines */

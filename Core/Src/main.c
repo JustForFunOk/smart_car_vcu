@@ -42,8 +42,6 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
-DMA_HandleTypeDef hdma_i2c1_rx;
-DMA_HandleTypeDef hdma_i2c1_tx;
 
 UART_HandleTypeDef huart1;
 
@@ -54,7 +52,6 @@ UART_HandleTypeDef huart1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
@@ -95,7 +92,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
@@ -257,25 +253,6 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Channel6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
-  /* DMA1_Channel7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -313,8 +290,8 @@ static void MPU9250_Init(void)
   uint8_t iic_read_status = HAL_ERROR;
   uint8_t mpu9250_who_am_i_value = 255;
 
-  iic_read_status = HAL_I2C_Mem_Read_DMA(&hi2c1, MPU9250_IIC_HAL_ADDRESS, MPU9250_WHO_AM_I, 1, &mpu9250_who_am_i_value, 1);
-  HAL_Delay(1); // wait 1ms for mpu9250_who_am_i_value ready
+  iic_read_status = HAL_I2C_Mem_Read(&hi2c1, MPU9250_IIC_HAL_ADDRESS, MPU9250_WHO_AM_I, 1, &mpu9250_who_am_i_value, 1, 100);
+  // HAL_Delay(1); // wait 1ms for mpu9250_who_am_i_value ready
 
   if(HAL_OK == iic_read_status)
   {
