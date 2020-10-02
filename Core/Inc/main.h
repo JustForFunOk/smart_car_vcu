@@ -61,7 +61,10 @@ void Error_Handler(void);
 #define SYS_LED_Pin GPIO_PIN_3
 #define SYS_LED_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
-
+// INA226
+// Address: 100 0000 (A0 & A1 connect to GND)
+#define INA226_IIC_ADDRESS     0x80  // 100 0000 shift left to 0x80
+#define INA226_REG_CONFIG      0x00  // 2 bytes
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
