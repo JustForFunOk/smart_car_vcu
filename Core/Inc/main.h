@@ -65,6 +65,9 @@ void Error_Handler(void);
 // Address: 100 0000 (A0 & A1 connect to GND)
 #define INA226_IIC_ADDRESS     0x80  // 100 0000 shift left to 0x80
 #define INA226_REG_CONFIG      0x00  // 2 bytes
+// PCF8574
+// Address: 010 0000 (A0 & A1 & A2 connect to GND)
+#define PCF8574_WRITE_IIC_ADDRESS  0x40
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

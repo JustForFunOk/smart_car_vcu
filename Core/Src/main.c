@@ -58,6 +58,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
 static void Power_Monitor_Init(void);
+static void PCF8574_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -98,6 +99,7 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   Power_Monitor_Init();
+  PCF8574_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -290,6 +292,37 @@ static void Power_Monitor_Init(void)
   else if(HAL_TIMEOUT == iic_read_status)
   {
     printf("TIMEOUT\n");
+  }
+}
+
+/**
+  * @brief PCF8574 Init
+  * @param None
+  * @retval None
+  */
+static void PCF8574_Init(void)
+{
+  uint8_t iic_read_status = HAL_ERROR;
+  uint8_t value = 0x0f;
+
+  iic_read_status = HAL_I2C_Master_Transmit(&hi2c2, PCF8574_WRITE_IIC_ADDRESS, &value, 1, 1000);
+  HAL_Delay(1); // wait 1ms for ready
+
+  if(HAL_OK == iic_read_status)
+  {
+    printf("PCF8574 OK\n");
+  }
+  else if(HAL_ERROR == iic_read_status)
+  {
+    printf("PCF8574 ERROR\n");
+  }
+  else if(HAL_BUSY == iic_read_status)
+  {
+    printf("PCF8574 BUSY\n");
+  }
+  else if(HAL_TIMEOUT == iic_read_status)
+  {
+    printf("PCF8574 TIMEOUT\n");
   }
 }
 /* USER CODE END 4 */
