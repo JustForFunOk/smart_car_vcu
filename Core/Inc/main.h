@@ -60,6 +60,18 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define SYS_LED_Pin GPIO_PIN_3
 #define SYS_LED_GPIO_Port GPIOA
+#define W5500_CS_Pin GPIO_PIN_12
+#define W5500_CS_GPIO_Port GPIOB
+#define W5500_SCLK_Pin GPIO_PIN_13
+#define W5500_SCLK_GPIO_Port GPIOB
+#define W5500_MISO_Pin GPIO_PIN_14
+#define W5500_MISO_GPIO_Port GPIOB
+#define W5500_MOSI_Pin GPIO_PIN_15
+#define W5500_MOSI_GPIO_Port GPIOB
+#define W5500_INT_Pin GPIO_PIN_6
+#define W5500_INT_GPIO_Port GPIOC
+#define W5500_RST_Pin GPIO_PIN_7
+#define W5500_RST_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
