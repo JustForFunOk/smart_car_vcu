@@ -46,7 +46,9 @@ SD_HandleTypeDef hsd;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+FATFS fs;  // file system
+FIL fil;  // File
+FRESULT fresult;  // result
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,7 +57,8 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SDIO_SD_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void mount_sd(void);
+static void unmount_sd(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -95,7 +98,7 @@ int main(void)
   MX_SDIO_SD_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
-
+  mount_sd();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -168,7 +171,7 @@ static void MX_SDIO_SD_Init(void)
   hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
   hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
   hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-  hsd.Init.ClockDiv = 0;
+  hsd.Init.ClockDiv = 4;
   /* USER CODE BEGIN SDIO_Init 2 */
 
   /* USER CODE END SDIO_Init 2 */
@@ -235,7 +238,19 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void mount_sd(void)
+{
+	fresult = f_mount(&fs, "/", 1);
+	if (fresult != FR_OK) printf("error in mounting SD CARD..., ERROR CODE: %d\n", fresult);
+	else printf("SD CARD mounted successfully...\n");
+}
 
+static void unmount_sd(void)
+{
+	fresult = f_mount(NULL, "/", 1);
+	if (fresult == FR_OK) printf ("SD CARD UNMOUNTED successfully...\n");
+	else printf("error!!! in UNMOUNTING SD CARD\n");
+}
 /* USER CODE END 4 */
 
 /**
