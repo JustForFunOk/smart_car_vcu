@@ -49,6 +49,7 @@ UART_HandleTypeDef huart1;
 FATFS fs;  // file system
 FIL fil;  // File
 FRESULT fresult;  // result
+FILINFO fno;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,6 +60,7 @@ static void MX_SDIO_SD_Init(void);
 /* USER CODE BEGIN PFP */
 static void mount_sd(void);
 static void unmount_sd(void);
+static void create_file(char *name);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -99,6 +101,7 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   mount_sd();
+  create_file("test.txt");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -250,6 +253,34 @@ static void unmount_sd(void)
 	fresult = f_mount(NULL, "/", 1);
 	if (fresult == FR_OK) printf ("SD CARD UNMOUNTED successfully...\n");
 	else printf("error!!! in UNMOUNTING SD CARD\n");
+}
+
+static void create_file(char *name)
+{
+  fresult = f_stat (name, &fno);
+  if(fresult == FR_OK)
+  {
+    printf("*%s* already exists!!!!\n",name);
+  }
+	else
+  {
+    fresult = f_open(&fil, name, FA_CREATE_ALWAYS|FA_READ|FA_WRITE);
+    if (fresult != FR_OK)
+    {
+      printf( "error no %d in creating file *%s*\n", fresult, name);
+    }
+    else
+    {
+      printf("*%s* created successfully\n",name);
+
+    }
+
+    fresult = f_close(&fil);
+    if (fresult != FR_OK)
+    {
+      printf("error no %d in closing file *%s*\n", fresult, name);
+    }
+	}
 }
 /* USER CODE END 4 */
 
