@@ -60,9 +60,9 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define SYS_LED_Pin GPIO_PIN_3
 #define SYS_LED_GPIO_Port GPIOA
-#define FAST_IIC_SCL_Pin GPIO_PIN_6
+#define FAST_IIC_SCL_Pin GPIO_PIN_8
 #define FAST_IIC_SCL_GPIO_Port GPIOB
-#define FAST_IIC_SDA_Pin GPIO_PIN_7
+#define FAST_IIC_SDA_Pin GPIO_PIN_9
 #define FAST_IIC_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 // MPU9250
