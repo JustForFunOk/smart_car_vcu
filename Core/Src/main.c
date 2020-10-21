@@ -200,7 +200,9 @@ int main(void)
   while (1)
   {
     // test as tcp client
-    loopback_tcpc(0, (uint8_t*)recv_buff, destip, destport);
+    //loopback_tcpc(0, (uint8_t*)recv_buff, destip, destport);
+    // test ad tcp server
+    loopback_tcps(0, recv_buff, destport);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
