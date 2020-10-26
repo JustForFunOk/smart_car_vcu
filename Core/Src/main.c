@@ -25,8 +25,8 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>  // printf
 #include <string.h>  // memcmp
-#include "loopback/loopback.h"  // loopback_tcpc
 #include "socket.h"  // ctlnetwork reg_wizchip_cs_cbfunc reg_wizchip_spi_cbfunc
+#include "tcp_server.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,7 +63,9 @@ const osThreadAttr_t TcpTransmitTask_attributes = {
   .stack_size = 128 * 4
 };
 /* USER CODE BEGIN PV */
-
+uint16_t destport = 5000;
+uint8_t receive_buff[2048];
+uint8_t transmit_buff[] = "hello client\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -208,9 +210,7 @@ int main(void)
 
   // set sever ip and port
   uint8_t destip[4] = {192, 168, 3, 107};
-  uint16_t destport = 5000;
-  // receive buffer
-  uint8_t recv_buff[2048];
+  
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -251,10 +251,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // test as tcp client
-    //loopback_tcpc(0, (uint8_t*)recv_buff, destip, destport);
-    // test ad tcp server
-    loopback_tcps(0, recv_buff, destport);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -441,6 +437,10 @@ void startTcpReceiveTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+    if(tcpServerReceive(W5500_TCP_SOCKET_CHANNEL, receive_buff, destport) > 0)
+    {
+      printf("%s\n", receive_buff);
+    }
     osDelay(1);
   }
   /* USER CODE END 5 */
@@ -459,7 +459,8 @@ void startTcpTransmitTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_buff, strlen(transmit_buff), destport);
+    osDelay(1000);
   }
   /* USER CODE END startTcpTransmitTask */
 }

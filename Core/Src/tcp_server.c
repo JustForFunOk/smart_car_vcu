@@ -1,14 +1,18 @@
-#include "loopback.h"
+// #include "loopback.h"
 #include "socket.h"
 #include "wizchip_conf.h"
 #include <stdio.h>
 
 #define _W5500_DEBUG_
 
-int32_t tcpServerReceive(uint8_t sn, uint8_t* _transmit_buf, uint16_t port)
+#ifndef DATA_BUF_SIZE
+#define DATA_BUF_SIZE			2048
+#endif
+
+int32_t tcpServerReceive(uint8_t sn, uint8_t* _receive_buf, uint16_t port)
 {
     int32_t ret;
-    uint16_t receive_size = 0, sentsize=0;
+    uint16_t receive_size = 0;
 
 #ifdef _W5500_DEBUG_
     uint8_t client_ip[4];
@@ -33,7 +37,7 @@ int32_t tcpServerReceive(uint8_t sn, uint8_t* _transmit_buf, uint16_t port)
             {
                 if(receive_size > DATA_BUF_SIZE) receive_size = DATA_BUF_SIZE;
 
-                ret = recv(sn, _transmit_buf, receive_size);  // receive data
+                ret = recv(sn, _receive_buf, receive_size);  // receive data
 
                 if(ret <= 0) return ret;  // check SOCKERR_BUSY & SOCKERR_XXX. For showing the occurrence of SOCKERR_BUSY.
                 receive_size = (uint16_t) ret;
@@ -41,28 +45,28 @@ int32_t tcpServerReceive(uint8_t sn, uint8_t* _transmit_buf, uint16_t port)
             break;
 
         case SOCK_CLOSE_WAIT :
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             //printf("%d:CloseWait\r\n",sn);
 #endif
             if((ret = disconnect(sn)) != SOCK_OK) return ret;
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             printf("%d:Socket Closed\r\n", sn);
 #endif
             break;
 
         case SOCK_INIT :
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             printf("%d:Listen, wait for client connect, port [%d]\r\n", sn, port);
 #endif
             if( (ret = listen(sn)) != SOCK_OK) return ret;
             break;
 
         case SOCK_CLOSED:
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             //printf("%d:TCP server loopback start\r\n",sn);
 #endif
             if((ret = socket(sn, Sn_MR_TCP, port, 0x00)) != sn) return ret;
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             //printf("%d:Socket opened\r\n",sn);
 #endif
             break;
@@ -70,7 +74,7 @@ int32_t tcpServerReceive(uint8_t sn, uint8_t* _transmit_buf, uint16_t port)
         default:
             break;
     }
-    return 1;
+    return ret;
 }
 
 int32_t tcpServerTransmit(uint8_t sn, uint8_t* _transmit_buf, uint16_t _len, uint16_t port)
@@ -110,28 +114,28 @@ int32_t tcpServerTransmit(uint8_t sn, uint8_t* _transmit_buf, uint16_t _len, uin
             break;
 
         case SOCK_CLOSE_WAIT :
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             //printf("%d:CloseWait\r\n",sn);
 #endif
             if((ret = disconnect(sn)) != SOCK_OK) return ret;
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             printf("%d:Socket Closed\r\n", sn);
 #endif
             break;
 
         case SOCK_INIT :
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             printf("%d:Listen, wait for client connect, port [%d]\r\n", sn, port);
 #endif
             if( (ret = listen(sn)) != SOCK_OK) return ret;
             break;
 
         case SOCK_CLOSED:
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             //printf("%d:TCP server loopback start\r\n",sn);
 #endif
             if((ret = socket(sn, Sn_MR_TCP, port, 0x00)) != sn) return ret;
-#ifdef _LOOPBACK_DEBUG_
+#ifdef _W5500_DEBUG_
             //printf("%d:Socket opened\r\n",sn);
 #endif
             break;
