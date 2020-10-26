@@ -73,7 +73,7 @@ void Error_Handler(void);
 #define W5500_RST_Pin GPIO_PIN_7
 #define W5500_RST_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
-
+#define W5500_TCP_SOCKET_CHANNEL 0  // 0~7
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
