@@ -105,9 +105,9 @@ int main(void)
   {
     HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
     MPU9250_GetData(AccData, MagData, GyroData);
-    printf("A:x-%d,y-%d,z-%d\n", AccData[0], AccData[1], AccData[2]);
-    printf("M:x-%d,y-%d,z-%d\n", MagData[0], MagData[1], MagData[2]);
-    printf("G:x-%d,y-%d,z-%d\n", GyroData[0], GyroData[1], GyroData[2]);
+    printf("[A]x:%6d,y:%6d,z:%6d\n", AccData[0], AccData[1], AccData[2]);
+    printf("[M]x:%6d,y:%6d,z:%6d\n", MagData[0], MagData[1], MagData[2]);
+    printf("[G]x:%6d,y:%6d,z:%6d\n", GyroData[0], GyroData[1], GyroData[2]);
     printf("\n");
     HAL_Delay(1000);
     /* USER CODE END WHILE */
