@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "mpu9250.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +46,7 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+static int16_t AccData[3], MagData[3], GyroData[3];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -54,7 +55,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
-static void MPU9250_Init(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -94,6 +95,7 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   printf("init mpu9250");
+  // MPU9250_Init();
   MPU9250_Init();
   /* USER CODE END 2 */
 
@@ -102,6 +104,11 @@ int main(void)
   while (1)
   {
     HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+    MPU9250_GetData(AccData, MagData, GyroData);
+    printf("A:x-%d,y-%d,z-%d\n", AccData[0], AccData[1], AccData[2]);
+    printf("M:x-%d,y-%d,z-%d\n", MagData[0], MagData[1], MagData[2]);
+    printf("G:x-%d,y-%d,z-%d\n", GyroData[0], GyroData[1], GyroData[2]);
+    printf("\n");
     HAL_Delay(1000);
     /* USER CODE END WHILE */
 
@@ -243,43 +250,6 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-/**
-  * @brief MPU9250 Init
-  * @param None
-  * @retval None
-  */
-static void MPU9250_Init(void)
-{
-  uint8_t iic_read_status = HAL_ERROR;
-  uint8_t mpu9250_who_am_i_value = 255;
-
-  iic_read_status = HAL_I2C_Mem_Read(&hi2c1, MPU9250_IIC_HAL_ADDRESS, MPU9250_WHO_AM_I, 1, &mpu9250_who_am_i_value, 1, 100);
-  // HAL_Delay(1); // wait 1ms for mpu9250_who_am_i_value ready
-
-  if(HAL_OK == iic_read_status)
-  {
-    if(MPU9250_WHO_AM_I_VALUE == mpu9250_who_am_i_value)
-    {
-      printf("MPU9250 connect successful, value ok: %d\n", mpu9250_who_am_i_value);
-    }
-    else
-    {
-      printf("MPU9250 connect successful, value wrong: %d\n", mpu9250_who_am_i_value);
-    }
-  }
-  else if(HAL_ERROR == iic_read_status)
-  {
-    printf("MPU9250 connect failed: ERROR\n");
-  }
-  else if(HAL_BUSY == iic_read_status)
-  {
-    printf("MPU9250 connect failed: BUSY\n");
-  }
-  else if(HAL_TIMEOUT == iic_read_status)
-  {
-    printf("MPU9250 connect failed: TIMEOUT\n");
-  }
-}
 /* USER CODE END 4 */
 
 /**
