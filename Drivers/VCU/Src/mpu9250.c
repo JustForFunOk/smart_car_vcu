@@ -1,4 +1,5 @@
 #include "mpu9250.h"
+#include <stdio.h>
 
 const uint8_t READWRITE_CMD = 0x80;
 const uint8_t MULTIPLEBYTE_CMD = 0x40;
@@ -90,7 +91,7 @@ __weak void MPU9250_OnActivate()
 {
 }
 #ifndef MPU9250_USE_SPI
-bool    MPU9250_IsConnected()
+bool MPU9250_IsConnected()
 {
     if(HAL_I2C_IsDeviceReady(&_MPU9250_I2C,_dev_add,1,HAL_MAX_DELAY)==HAL_OK)
         return true;
@@ -288,6 +289,8 @@ uint8_t MPU9250_Init()
     writeRegister(I2C_MST_CTRL,I2C_MST_CLK);
 
     // check AK8963 WHO AM I register, expected value is 0x48 (decimal 72)
+    int who_am_i_ak8963 = whoAmIAK8963();
+    printf("whoAmIAK8963 = %d\n", who_am_i_ak8963);
     if( whoAmIAK8963() != 0x48 )
     {
         return 1;
@@ -307,6 +310,7 @@ uint8_t MPU9250_Init()
 
     // read the AK8963 ASA registers and compute magnetometer scale factors
     readAK8963Registers(AK8963_ASA, 3, _mag_adjust);
+    printf("[_mag_adjust]x:%6d,y:%6d,z:%6d\n", _mag_adjust[0], _mag_adjust[1], _mag_adjust[2]);
 
     // set AK8963 to Power Down
     writeAK8963Register(AK8963_CNTL1,AK8963_PWR_DOWN);
@@ -409,6 +413,8 @@ void MPU9250_GetData(int16_t* AccData, int16_t* MagData, int16_t* GyroData)
     int16_t magx = (((int16_t)_buffer[15]) << 8) | _buffer[14];
     int16_t magy = (((int16_t)_buffer[17]) << 8) | _buffer[16];
     int16_t magz = (((int16_t)_buffer[19]) << 8) | _buffer[18];
+
+    printf("[mag]x:%6d,y:%6d,z:%6d\n", magx, magy, magz);    
 
     MagData[0] = (int16_t)((float)magx * ((float)(_mag_adjust[0] - 128) / 256.0f + 1.0f));
     MagData[1] = (int16_t)((float)magy * ((float)(_mag_adjust[1] - 128) / 256.0f + 1.0f));

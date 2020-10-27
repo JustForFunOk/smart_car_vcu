@@ -96,7 +96,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("init mpu9250");
   // MPU9250_Init();
-  MPU9250_Init();
+  if(MPU9250_Init() == 1)
+  {
+    printf("MPU9250 init failed\n");
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
