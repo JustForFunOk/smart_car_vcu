@@ -1,7 +1,6 @@
 #ifndef _MPU9250_H_
 #define _MPU9250_H_
 
-#include "main.h"
 #include "mpu9250_config.h"
 #include <stdbool.h>
 

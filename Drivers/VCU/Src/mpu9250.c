@@ -1,5 +1,5 @@
 #include "mpu9250.h"
-#include <stdio.h>
+#include <stdio.h>  // printf
 
 const uint8_t READWRITE_CMD = 0x80;
 const uint8_t MULTIPLEBYTE_CMD = 0x40;
@@ -9,47 +9,73 @@ const uint16_t _dev_add = 208;
 // 400 kHz
 const uint32_t _i2cRate = 400000;
 
-// MPU9250 registers
+// MPU9250 registers address
+// Power Management 1
+const uint8_t PWR_MGMNT_1 = 0x6B;
+const uint8_t CLOCK_SEL_PLL = 0x01;  // Auto selects the best available clock source – PLL if ready, else use the Internal oscillator
+const uint8_t PWR_RESET = 0x80;  // 1 – Reset the internal registers and restores the default settings. Write a 1 to set the reset, the bit will auto clear.
+// Power Management 2
+const uint8_t PWR_MGMNT_2 = 0x6C;
+const uint8_t SEN_ENABLE = 0x00;  // open XYZ axis of gyro and accelerometer
+// User Control
+const uint8_t USER_CTRL = 0x6A;
+// I2C Master Control
+const uint8_t I2C_MST_CTRL = 0x24;
+const uint8_t I2C_MST_EN = 0x20;  // Enable the I2C Master I/F module; pins ES_DA and ES_SCL are isolated from pins SDA/SDI and SCL/ SCLK.
+const uint8_t I2C_MST_CLK = 0x0D;  // I2C clock speed 400kHz
+// Accelerometer Configuration
+const uint8_t ACCEL_CONFIG = 0x1C;
+const uint8_t ACCEL_FS_SEL_2G = 0x00;  // Accel Full Scale Select: +-2g
+const uint8_t ACCEL_FS_SEL_4G = 0x08;  // Accel Full Scale Select: +-4g
+const uint8_t ACCEL_FS_SEL_8G = 0x10;  // Accel Full Scale Select: +-8g
+const uint8_t ACCEL_FS_SEL_16G = 0x18; // Accel Full Scale Select: +-16g
+// Accelerometer Configuration 2
+const uint8_t ACCEL_CONFIG2 = 0x1D;
+const uint8_t ACCEL_DLPF_460 = 0x00;  // Data Low Pass Filter Bandwidth: 460Hz [default]
+const uint8_t ACCEL_DLPF_184 = 0x01;  // Data Low Pass Filter Bandwidth: 184Hz
+const uint8_t ACCEL_DLPF_92 = 0x02;   // Data Low Pass Filter Bandwidth: 92Hz
+const uint8_t ACCEL_DLPF_41 = 0x03;   // Data Low Pass Filter Bandwidth: 41Hz
+const uint8_t ACCEL_DLPF_20 = 0x04;   // Data Low Pass Filter Bandwidth: 20Hz
+const uint8_t ACCEL_DLPF_10 = 0x05;   // Data Low Pass Filter Bandwidth: 10Hz
+const uint8_t ACCEL_DLPF_5 = 0x06;    // Data Low Pass Filter Bandwidth: 5Hz
+// Gyroscope Configuration
+const uint8_t GYRO_CONFIG = 0x1B;
+const uint8_t GYRO_FS_SEL_250DPS = 0x00;  // Gyro Full Scale Select: +-250dps(degrees per second) and FCHOICE[1:0]=11
+const uint8_t GYRO_FS_SEL_500DPS = 0x08;  // Gyro Full Scale Select: +-500dps
+const uint8_t GYRO_FS_SEL_1000DPS = 0x10; // Gyro Full Scale Select: +-1000dps
+const uint8_t GYRO_FS_SEL_2000DPS = 0x18; // Gyro Full Scale Select: +-2000dps
+// Configuration
+const uint8_t CONFIG = 0x1A;
+const uint8_t GYRO_DLPF_250 = 0x00;  // Data Low Pass Filter Bandwidth: 250Hz
+const uint8_t GYRO_DLPF_184 = 0x01;  // Data Low Pass Filter Bandwidth: 184Hz
+const uint8_t GYRO_DLPF_92 = 0x02;   // Data Low Pass Filter Bandwidth: 92Hz
+const uint8_t GYRO_DLPF_41 = 0x03;   // Data Low Pass Filter Bandwidth: 41Hz
+const uint8_t GYRO_DLPF_20 = 0x04;   // Data Low Pass Filter Bandwidth: 20Hz
+const uint8_t GYRO_DLPF_10 = 0x05;   // Data Low Pass Filter Bandwidth: 10Hz
+const uint8_t GYRO_DLPF_5 = 0x06;    // Data Low Pass Filter Bandwidth: 5Hz
+// Sample Rate Divider
+const uint8_t SMPDIV = 0x19;
+// INT Pin / Bypass Enable Configuration
+const uint8_t INT_PIN_CFG = 0x37;
+const uint8_t BYPASS_EN = 0x02;
+
+
 const uint8_t ACCEL_OUT = 0x3B;
 const uint8_t GYRO_OUT = 0x43;
 const uint8_t TEMP_OUT = 0x41;
 const uint8_t EXT_SENS_DATA_00 = 0x49;
-const uint8_t ACCEL_CONFIG = 0x1C;
-const uint8_t ACCEL_FS_SEL_2G = 0x00;
-const uint8_t ACCEL_FS_SEL_4G = 0x08;
-const uint8_t ACCEL_FS_SEL_8G = 0x10;
-const uint8_t ACCEL_FS_SEL_16G = 0x18;
-const uint8_t GYRO_CONFIG = 0x1B;
-const uint8_t GYRO_FS_SEL_250DPS = 0x00;
-const uint8_t GYRO_FS_SEL_500DPS = 0x08;
-const uint8_t GYRO_FS_SEL_1000DPS = 0x10;
-const uint8_t GYRO_FS_SEL_2000DPS = 0x18;
-const uint8_t ACCEL_CONFIG2 = 0x1D;
-const uint8_t DLPF_184 = 0x01;
-const uint8_t DLPF_92 = 0x02;
-const uint8_t DLPF_41 = 0x03;
-const uint8_t DLPF_20 = 0x04;
-const uint8_t DLPF_10 = 0x05;
-const uint8_t DLPF_5 = 0x06;
-const uint8_t CONFIG = 0x1A;
-const uint8_t SMPDIV = 0x19;
-const uint8_t INT_PIN_CFG = 0x37;
+
+
 const uint8_t INT_ENABLE = 0x38;
 const uint8_t INT_DISABLE = 0x00;
 const uint8_t INT_PULSE_50US = 0x00;
 const uint8_t INT_WOM_EN = 0x40;
 const uint8_t INT_RAW_RDY_EN = 0x01;
-const uint8_t PWR_MGMNT_1 = 0x6B;
 const uint8_t PWR_CYCLE = 0x20;
-const uint8_t PWR_RESET = 0x80;
-const uint8_t CLOCK_SEL_PLL = 0x01;
-const uint8_t PWR_MGMNT_2 = 0x6C;
-const uint8_t SEN_ENABLE = 0x00;
+
+
+
 const uint8_t DIS_GYRO = 0x07;
-const uint8_t USER_CTRL = 0x6A;
-const uint8_t I2C_MST_EN = 0x20;
-const uint8_t I2C_MST_CLK = 0x0D;  // 400kHz
-const uint8_t I2C_MST_CTRL = 0x24;
 const uint8_t I2C_SLV0_ADDR = 0x25;
 const uint8_t I2C_SLV0_REG = 0x26;
 const uint8_t I2C_SLV0_DO = 0x63;
@@ -62,6 +88,8 @@ const uint8_t ACCEL_INTEL_MODE = 0x40;
 const uint8_t LP_ACCEL_ODR = 0x1E;
 const uint8_t WOM_THR = 0x1F;
 const uint8_t WHO_AM_I = 0x75;
+const uint8_t WHO_AM_I_VALUE_1 = 0x71;
+const uint8_t WHO_AM_I_VALUE_2 = 0x73;
 const uint8_t FIFO_EN = 0x23;
 const uint8_t FIFO_TEMP = 0x80;
 const uint8_t FIFO_GYRO = 0x70;
@@ -70,48 +98,71 @@ const uint8_t FIFO_MAG = 0x01;
 const uint8_t FIFO_COUNT = 0x72;
 const uint8_t FIFO_READ = 0x74;
 
-// AK8963 registers
+// AK8963 registers address and value
+// Who Am I
+const uint8_t AK8963_WHO_AM_I = 0x00;
+const uint8_t AK8963_WHO_AM_I_VALUE = 0x48;
+// Control 1
+const uint8_t AK8963_CNTL1 = 0x0A;
+const uint8_t AK8963_PWR_DOWN = 0x00;  // Power-down mode
+// Control 2
+const uint8_t AK8963_CNTL2 = 0x0B;
+const uint8_t AK8963_RESET = 0x01;  // When “1” is set, all registers are initialized. After reset, SRST bit turns to “0” automatically.
+
+
 const uint8_t AK8963_I2C_ADDR = 0x0C;
 const uint8_t AK8963_HXL = 0x03;
-const uint8_t AK8963_CNTL1 = 0x0A;
-const uint8_t AK8963_PWR_DOWN = 0x00;
+
+
 const uint8_t AK8963_CNT_MEAS1 = 0x12;
 const uint8_t AK8963_CNT_MEAS2 = 0x16;
 const uint8_t AK8963_FUSE_ROM = 0x0F;
-const uint8_t AK8963_CNTL2 = 0x0B;
-const uint8_t AK8963_RESET = 0x01;
+
+
 const uint8_t AK8963_ASA = 0x10;
-const uint8_t AK8963_WHO_AM_I = 0x00;
 
 
 static uint8_t _buffer[21];
 static uint8_t _mag_adjust[3];
 
-__weak void MPU9250_OnActivate()
+#ifdef MPU9250_USE_IIC
+static bool MPU9250_IsConnected()
 {
-}
-#ifndef MPU9250_USE_SPI
-bool MPU9250_IsConnected()
-{
-    if(HAL_I2C_IsDeviceReady(&_MPU9250_I2C,_dev_add,1,HAL_MAX_DELAY)==HAL_OK)
+    if(HAL_I2C_IsDeviceReady(&MPU9250_I2C_CHANNEL,_dev_add,1,HAL_MAX_DELAY)==HAL_OK)
         return true;
     else
         return false;
 }
 
-void MPU_I2C_Write(uint8_t *pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
+static void MPU_I2C_Write(uint8_t *pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 {
-    HAL_I2C_Mem_Write(&_MPU9250_I2C,_dev_add,WriteAddr,I2C_MEMADD_SIZE_8BIT,pBuffer,NumByteToWrite,HAL_MAX_DELAY);
+    HAL_StatusTypeDef status = HAL_I2C_Mem_Write(&MPU9250_I2C_CHANNEL,_dev_add,WriteAddr,I2C_MEMADD_SIZE_8BIT,pBuffer,NumByteToWrite,HAL_MAX_DELAY);
+    if(HAL_OK != status)
+    {
+        printf("I2C write error: %d", status);
+    }
 }
 
-void MPU_I2C_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
+static void MPU_I2C_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
     uint8_t data = ReadAddr | READWRITE_CMD;
-    HAL_I2C_Master_Transmit(&_MPU9250_I2C,_dev_add,&data,1,HAL_MAX_DELAY);
-    HAL_I2C_Master_Receive(&_MPU9250_I2C,_dev_add,pBuffer,NumByteToRead,HAL_MAX_DELAY);
+    HAL_StatusTypeDef status;
+    status = HAL_I2C_Master_Transmit(&MPU9250_I2C_CHANNEL,_dev_add,&data,1,HAL_MAX_DELAY);
+    if(HAL_OK != status)
+    {
+        printf("HAL_I2C_Master_Transmit error: %d", status);
+    }
+    status = HAL_I2C_Master_Receive(&MPU9250_I2C_CHANNEL,_dev_add,pBuffer,NumByteToRead,HAL_MAX_DELAY);
+    if(HAL_OK != status)
+    {
+        printf("HAL_I2C_Master_Receive error: %d", status);
+    }
 }
-#endif
-#ifdef MPU9250_USE_SPI
+#else  // SPI
+__weak void MPU9250_OnActivate()
+{
+}
+
 static inline void MPU9250_Activate()
 {
     MPU9250_OnActivate();
@@ -158,28 +209,29 @@ void MPU_SPI_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
     MPU9250_Deactivate();
 }
 #endif
+
 /* writes a byte to MPU9250 register given a register address and data */
-void writeRegister(uint8_t subAddress, uint8_t data)
+static void writeRegister(uint8_t subAddress, uint8_t data)
 {
-    #ifdef MPU9250_USE_SPI
-    MPU_SPI_Write(&data, subAddress, 1);
-    #else
+    #ifdef MPU9250_USE_IIC
     MPU_I2C_Write(&data, subAddress, 1);
+    #else
+    MPU_SPI_Write(&data, subAddress, 1);
     #endif
     HAL_Delay(10);
 }
 
 /* reads registers from MPU9250 given a starting register address, number of bytes, and a pointer to store data */
-void readRegisters(uint8_t subAddress, uint8_t count, uint8_t* dest){
-    #ifdef MPU9250_USE_SPI
-    MPU_SPI_Read(dest, subAddress, count);
-    #else
+static void readRegisters(uint8_t subAddress, uint8_t count, uint8_t* dest){
+    #ifdef MPU9250_USE_IIC
     MPU_I2C_Read(dest, subAddress, count);
+    #else
+    MPU_SPI_Read(dest, subAddress, count);
     #endif
 }
 
 /* writes a register to the AK8963 given a register address and data */
-void writeAK8963Register(uint8_t subAddress, uint8_t data)
+static void writeAK8963Register(uint8_t subAddress, uint8_t data)
 {
     // set slave 0 to the AK8963 and set for write
     writeRegister(I2C_SLV0_ADDR,AK8963_I2C_ADDR);
@@ -195,7 +247,7 @@ void writeAK8963Register(uint8_t subAddress, uint8_t data)
 }
 
 /* reads registers from the AK8963 */
-void readAK8963Registers(uint8_t subAddress, uint8_t count, uint8_t* dest)
+static void readAK8963Registers(uint8_t subAddress, uint8_t count, uint8_t* dest)
 {
     // set slave 0 to the AK8963 and set for read
     writeRegister(I2C_SLV0_ADDR, AK8963_I2C_ADDR | I2C_READ_FLAG);
@@ -224,42 +276,47 @@ static uint8_t whoAmI(){
 
 /* gets the AK8963 WHO_AM_I register value, expected to be 0x48 */
 static int whoAmIAK8963(){
+    _buffer[0] = 0xff;
     // read the WHO AM I register
     readAK8963Registers(AK8963_WHO_AM_I,1,_buffer);
     // return the register value
     return _buffer[0];
 }
 
+// uint8_t initGMeterAndGyro()
+// {
+
+// }
+
 /* starts communication with the MPU-9250 */
 uint8_t MPU9250_Init()
 {
-    #ifndef MPU9250_USE_SPI
-    while(MPU9250_IsConnected() == false)
+    #ifdef MPU9250_USE_IIC
+    while(!MPU9250_IsConnected())
     {
         HAL_Delay(100);
     }
     #endif
-    // select clock source to gyro
+    // select PLL as clock source
     writeRegister(PWR_MGMNT_1, CLOCK_SEL_PLL);
     // enable I2C master mode
     writeRegister(USER_CTRL, I2C_MST_EN);
     // set the I2C bus speed to 400 kHz
     writeRegister(I2C_MST_CTRL, I2C_MST_CLK);
 
-    // set AK8963 to Power Down
+    // set AK8963 to Power-down
     writeAK8963Register(AK8963_CNTL1,AK8963_PWR_DOWN);
     // reset the MPU9250
-    writeRegister(PWR_MGMNT_1,PWR_RESET);
+    writeRegister(PWR_MGMNT_1,PWR_RESET);  //???reset? restore default setting
     // wait for MPU9250 ready
     HAL_Delay(10);
-    // reset the AK8963
-    writeAK8963Register(AK8963_CNTL2,AK8963_RESET);
-    // select clock source to gyro
-    writeRegister(PWR_MGMNT_1,CLOCK_SEL_PLL);
+
+    // select PLL as clock source
+    writeRegister(PWR_MGMNT_1,CLOCK_SEL_PLL);  //???
 
     // check the WHO AM I byte, expected value is 0x71 (decimal 113) or 0x73 (decimal 115)
     uint8_t who = whoAmI();
-    if((who != 0x71) && ( who != 0x73))
+    if((who != WHO_AM_I_VALUE_1) && ( who != WHO_AM_I_VALUE_2))
     {
         return 1;
     }
@@ -267,17 +324,17 @@ uint8_t MPU9250_Init()
     // enable accelerometer and gyro
     writeRegister(PWR_MGMNT_2,SEN_ENABLE);
 
-    // setting accel range to 16G as default
-    writeRegister(ACCEL_CONFIG,ACCEL_FS_SEL_16G);
+    // setting accel range to 4G as default
+    writeRegister(ACCEL_CONFIG,ACCEL_FS_SEL_4G);
 
-    // setting the gyro range to 2000DPS as default
+    // setting the gyro range to 250DPS as default
     writeRegister(GYRO_CONFIG,GYRO_FS_SEL_250DPS);
 
     // setting bandwidth to 184Hz as default
-    writeRegister(ACCEL_CONFIG2,DLPF_184);
+    writeRegister(ACCEL_CONFIG2,ACCEL_DLPF_184);
 
     // setting gyro bandwidth to 184Hz
-    writeRegister(CONFIG,DLPF_184);
+    writeRegister(CONFIG,GYRO_DLPF_184);
 
     // setting the sample rate divider to 0 as default
     writeRegister(SMPDIV,0x00);
@@ -288,12 +345,20 @@ uint8_t MPU9250_Init()
     // set the I2C bus speed to 400 kHz
     writeRegister(I2C_MST_CTRL,I2C_MST_CLK);
 
+
+    // reset the AK8963
+    writeAK8963Register(AK8963_CNTL2,AK8963_RESET);
+    // wait for AK8963 ready
+    HAL_Delay(1000);
+
+    // writeRegister(INT_PIN_CFG,BYPASS_EN);  // enable bypass ????
+
     // check AK8963 WHO AM I register, expected value is 0x48 (decimal 72)
     int who_am_i_ak8963 = whoAmIAK8963();
     printf("whoAmIAK8963 = %d\n", who_am_i_ak8963);
-    if( whoAmIAK8963() != 0x48 )
+    if( whoAmIAK8963() != AK8963_WHO_AM_I_VALUE )
     {
-        return 1;
+        // return 1;
     }
 
     /* get the magnetometer calibration */
@@ -414,7 +479,7 @@ void MPU9250_GetData(int16_t* AccData, int16_t* MagData, int16_t* GyroData)
     int16_t magy = (((int16_t)_buffer[17]) << 8) | _buffer[16];
     int16_t magz = (((int16_t)_buffer[19]) << 8) | _buffer[18];
 
-    printf("[mag]x:%6d,y:%6d,z:%6d\n", magx, magy, magz);    
+    printf("[mag]x:%6d,y:%6d,z:%6d\n", magx, magy, magz);
 
     MagData[0] = (int16_t)((float)magx * ((float)(_mag_adjust[0] - 128) / 256.0f + 1.0f));
     MagData[1] = (int16_t)((float)magy * ((float)(_mag_adjust[1] - 128) / 256.0f + 1.0f));
