@@ -5,9 +5,9 @@
 #define MPU9250_USE_IIC
 
 #ifdef MPU9250_USE_IIC
-extern I2C_HandleTypeDef hi2c1;
 #define MPU9250_I2C_CHANNEL   hi2c1
-#define DEVICE_ADD            208‬
+// AD = 0
+#define DEVICE_ADDRESS        0xD0
 #else
 #define MPU9250_SPI           hspi1
 #define MPU9250_CS_GPIO       MPU9250_CS_GPIO_Port

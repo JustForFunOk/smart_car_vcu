@@ -5,7 +5,6 @@ const uint8_t READWRITE_CMD = 0x80;
 const uint8_t MULTIPLEBYTE_CMD = 0x40;
 const uint8_t DUMMY_BYTE = 0x00;
 
-const uint16_t _dev_add = 208;
 // 400 kHz
 const uint32_t _i2cRate = 400000;
 
@@ -128,7 +127,7 @@ static uint8_t _mag_adjust[3];
 #ifdef MPU9250_USE_IIC
 static bool MPU9250_IsConnected()
 {
-    if(HAL_I2C_IsDeviceReady(&MPU9250_I2C_CHANNEL,_dev_add,1,HAL_MAX_DELAY)==HAL_OK)
+    if(HAL_I2C_IsDeviceReady(&MPU9250_I2C_CHANNEL,DEVICE_ADDRESS,1,HAL_MAX_DELAY)==HAL_OK)
         return true;
     else
         return false;
@@ -136,7 +135,7 @@ static bool MPU9250_IsConnected()
 
 static void MPU_I2C_Write(uint8_t *pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 {
-    HAL_StatusTypeDef status = HAL_I2C_Mem_Write(&MPU9250_I2C_CHANNEL,_dev_add,WriteAddr,I2C_MEMADD_SIZE_8BIT,pBuffer,NumByteToWrite,HAL_MAX_DELAY);
+    HAL_StatusTypeDef status = HAL_I2C_Mem_Write(&MPU9250_I2C_CHANNEL,DEVICE_ADDRESS,WriteAddr,I2C_MEMADD_SIZE_8BIT,pBuffer,NumByteToWrite,HAL_MAX_DELAY);
     if(HAL_OK != status)
     {
         printf("I2C write error: %d", status);
@@ -147,12 +146,12 @@ static void MPU_I2C_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToR
 {
     uint8_t data = ReadAddr | READWRITE_CMD;
     HAL_StatusTypeDef status;
-    status = HAL_I2C_Master_Transmit(&MPU9250_I2C_CHANNEL,_dev_add,&data,1,HAL_MAX_DELAY);
+    status = HAL_I2C_Master_Transmit(&MPU9250_I2C_CHANNEL,DEVICE_ADDRESS,&data,1,HAL_MAX_DELAY);
     if(HAL_OK != status)
     {
         printf("HAL_I2C_Master_Transmit error: %d", status);
     }
-    status = HAL_I2C_Master_Receive(&MPU9250_I2C_CHANNEL,_dev_add,pBuffer,NumByteToRead,HAL_MAX_DELAY);
+    status = HAL_I2C_Master_Receive(&MPU9250_I2C_CHANNEL,DEVICE_ADDRESS,pBuffer,NumByteToRead,HAL_MAX_DELAY);
     if(HAL_OK != status)
     {
         printf("HAL_I2C_Master_Receive error: %d", status);
@@ -354,11 +353,9 @@ uint8_t MPU9250_Init()
     // writeRegister(INT_PIN_CFG,BYPASS_EN);  // enable bypass ????
 
     // check AK8963 WHO AM I register, expected value is 0x48 (decimal 72)
-    int who_am_i_ak8963 = whoAmIAK8963();
-    printf("whoAmIAK8963 = %d\n", who_am_i_ak8963);
     if( whoAmIAK8963() != AK8963_WHO_AM_I_VALUE )
     {
-        // return 1;
+        return 1;
     }
 
     /* get the magnetometer calibration */
@@ -375,7 +372,6 @@ uint8_t MPU9250_Init()
 
     // read the AK8963 ASA registers and compute magnetometer scale factors
     readAK8963Registers(AK8963_ASA, 3, _mag_adjust);
-    printf("[_mag_adjust]x:%6d,y:%6d,z:%6d\n", _mag_adjust[0], _mag_adjust[1], _mag_adjust[2]);
 
     // set AK8963 to Power Down
     writeAK8963Register(AK8963_CNTL1,AK8963_PWR_DOWN);
@@ -478,8 +474,6 @@ void MPU9250_GetData(int16_t* AccData, int16_t* MagData, int16_t* GyroData)
     int16_t magx = (((int16_t)_buffer[15]) << 8) | _buffer[14];
     int16_t magy = (((int16_t)_buffer[17]) << 8) | _buffer[16];
     int16_t magz = (((int16_t)_buffer[19]) << 8) | _buffer[18];
-
-    printf("[mag]x:%6d,y:%6d,z:%6d\n", magx, magy, magz);
 
     MagData[0] = (int16_t)((float)magx * ((float)(_mag_adjust[0] - 128) / 256.0f + 1.0f));
     MagData[1] = (int16_t)((float)magy * ((float)(_mag_adjust[1] - 128) / 256.0f + 1.0f));
