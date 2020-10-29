@@ -44,6 +44,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 SPI_HandleTypeDef hspi2;
 
 UART_HandleTypeDef huart1;
@@ -62,6 +64,13 @@ const osThreadAttr_t TcpTransmitTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
   .stack_size = 128 * 4
 };
+/* Definitions for ReadMpu9250Task */
+osThreadId_t ReadMpu9250TaskHandle;
+const osThreadAttr_t ReadMpu9250Task_attributes = {
+  .name = "ReadMpu9250Task",
+  .priority = (osPriority_t) osPriorityAboveNormal,
+  .stack_size = 128 * 4
+};
 /* USER CODE BEGIN PV */
 uint16_t destport = 5000;
 uint8_t receive_buff[2048];
@@ -73,8 +82,10 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_I2C1_Init(void);
 void startTcpReceiveTask(void *argument);
 void startTcpTransmitTask(void *argument);
+void startReadMpu9250Task(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -179,6 +190,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_SPI2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   reg_wizchip_cs_cbfunc(W5500_Select, W5500_Unselect);
   reg_wizchip_spi_cbfunc(W5500_ReadByte, W5500_WriteByte);
@@ -239,6 +251,9 @@ int main(void)
   /* creation of TcpTransmitTask */
   TcpTransmitTaskHandle = osThreadNew(startTcpTransmitTask, NULL, &TcpTransmitTask_attributes);
 
+  /* creation of ReadMpu9250Task */
+  ReadMpu9250TaskHandle = osThreadNew(startReadMpu9250Task, NULL, &ReadMpu9250Task_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -294,6 +309,40 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 400000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -463,6 +512,24 @@ void startTcpTransmitTask(void *argument)
     osDelay(1000);
   }
   /* USER CODE END startTcpTransmitTask */
+}
+
+/* USER CODE BEGIN Header_startReadMpu9250Task */
+/**
+* @brief Function implementing the ReadMpu9250Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_startReadMpu9250Task */
+void startReadMpu9250Task(void *argument)
+{
+  /* USER CODE BEGIN startReadMpu9250Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END startReadMpu9250Task */
 }
 
 /**

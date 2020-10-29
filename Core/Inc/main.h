@@ -72,6 +72,10 @@ void Error_Handler(void);
 #define W5500_INT_GPIO_Port GPIOC
 #define W5500_RST_Pin GPIO_PIN_7
 #define W5500_RST_GPIO_Port GPIOC
+#define FAST_IIC_SCL_Pin GPIO_PIN_8
+#define FAST_IIC_SCL_GPIO_Port GPIOB
+#define FAST_IIC_SDA_Pin GPIO_PIN_9
+#define FAST_IIC_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 #define W5500_TCP_SOCKET_CHANNEL 0  // 0~7
 /* USER CODE END Private defines */
