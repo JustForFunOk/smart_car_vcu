@@ -27,8 +27,10 @@
 #include <string.h>  // memcmp
 #include "socket.h"  // ctlnetwork reg_wizchip_cs_cbfunc reg_wizchip_spi_cbfunc
 #include "tcp_server.h"
+#include "mpu9250.h"
+#include "txd_config.h"
 /* USER CODE END Includes */
-
+const unsigned char kTransmitDataLength = 18;
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
@@ -74,7 +76,8 @@ const osThreadAttr_t ReadMpu9250Task_attributes = {
 /* USER CODE BEGIN PV */
 uint16_t destport = 5000;
 uint8_t receive_buff[2048];
-uint8_t transmit_buff[] = "hello client\n";
+// uint8_t transmit_buff[] = "hello client\n";
+char transmit_data[kTransmitDataLength];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -192,6 +195,8 @@ int main(void)
   MX_SPI2_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  MPU9250_Init();
+
   reg_wizchip_cs_cbfunc(W5500_Select, W5500_Unselect);
   reg_wizchip_spi_cbfunc(W5500_ReadByte, W5500_WriteByte);
 
@@ -222,7 +227,7 @@ int main(void)
 
   // set sever ip and port
   uint8_t destip[4] = {192, 168, 3, 107};
-  
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -508,8 +513,8 @@ void startTcpTransmitTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_buff, strlen(transmit_buff), destport);
-    osDelay(1000);
+    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_data, strlen(transmit_data), destport);
+    osDelay(kTransmitPeriodMs);
   }
   /* USER CODE END startTcpTransmitTask */
 }
@@ -524,10 +529,34 @@ void startTcpTransmitTask(void *argument)
 void startReadMpu9250Task(void *argument)
 {
   /* USER CODE BEGIN startReadMpu9250Task */
+  int16_t accel_data[3], magnet_data[3], gyro_data[3];
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    MPU9250_GetData(accel_data, magnet_data, gyro_data);
+    // fill data
+    uint8_t* byte_data = (uint8_t*)accel_data;
+    transmit_data[0] = byte_data[0];
+    transmit_data[1] = byte_data[1];
+    transmit_data[2] = byte_data[2];
+    transmit_data[3] = byte_data[3];
+    transmit_data[4] = byte_data[4];
+    transmit_data[5] = byte_data[5];
+    byte_data = (uint8_t*)gyro_data;
+    transmit_data[6] = byte_data[0];
+    transmit_data[7] = byte_data[1];
+    transmit_data[8] = byte_data[2];
+    transmit_data[9] = byte_data[3];
+    transmit_data[10] = byte_data[4];
+    transmit_data[11] = byte_data[5];
+    byte_data = (uint8_t*)magnet_data;
+    transmit_data[12] = byte_data[0];
+    transmit_data[13] = byte_data[1];
+    transmit_data[14] = byte_data[2];
+    transmit_data[15] = byte_data[3];
+    transmit_data[16] = byte_data[4];
+    transmit_data[17] = byte_data[5];
+    osDelay(kTransmitPeriodMs);
   }
   /* USER CODE END startReadMpu9250Task */
 }
