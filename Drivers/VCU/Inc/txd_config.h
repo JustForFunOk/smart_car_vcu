@@ -1,8 +1,8 @@
 #ifndef _TXD_CONFIG_H_
 #define _TXD_CONFIG_H_
 
-//const unsigned char kTransmitDataLength = 18;
+#define TRANSMIT_DATA_LENGTH  18  // review this value after change message fromat
 
-const unsigned char kTransmitPeriodMs = 20;  // 50Hz
+#define TRANSMIT_PERIOD_MS    20  // 50Hz
 
 #endif

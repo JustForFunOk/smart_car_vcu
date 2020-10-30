@@ -30,7 +30,7 @@
 #include "mpu9250.h"
 #include "txd_config.h"
 /* USER CODE END Includes */
-const unsigned char kTransmitDataLength = 18;
+
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
@@ -77,7 +77,7 @@ const osThreadAttr_t ReadMpu9250Task_attributes = {
 uint16_t destport = 5000;
 uint8_t receive_buff[2048];
 // uint8_t transmit_buff[] = "hello client\n";
-char transmit_data[kTransmitDataLength];
+uint8_t transmit_data[TRANSMIT_DATA_LENGTH];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -514,7 +514,7 @@ void startTcpTransmitTask(void *argument)
   for(;;)
   {
     tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_data, strlen(transmit_data), destport);
-    osDelay(kTransmitPeriodMs);
+    osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startTcpTransmitTask */
 }
@@ -556,7 +556,7 @@ void startReadMpu9250Task(void *argument)
     transmit_data[15] = byte_data[3];
     transmit_data[16] = byte_data[4];
     transmit_data[17] = byte_data[5];
-    osDelay(kTransmitPeriodMs);
+    osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startReadMpu9250Task */
 }
