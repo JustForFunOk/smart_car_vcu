@@ -513,7 +513,7 @@ void startTcpTransmitTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_data, strlen(transmit_data), destport);
+    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_data, TRANSMIT_DATA_LENGTH, destport);  // strlen(transmit_data)
     osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startTcpTransmitTask */
@@ -535,27 +535,15 @@ void startReadMpu9250Task(void *argument)
   {
     MPU9250_GetData(accel_data, magnet_data, gyro_data);
     // fill data
-    uint8_t* byte_data = (uint8_t*)accel_data;
-    transmit_data[0] = byte_data[0];
-    transmit_data[1] = byte_data[1];
-    transmit_data[2] = byte_data[2];
-    transmit_data[3] = byte_data[3];
-    transmit_data[4] = byte_data[4];
-    transmit_data[5] = byte_data[5];
-    byte_data = (uint8_t*)gyro_data;
-    transmit_data[6] = byte_data[0];
-    transmit_data[7] = byte_data[1];
-    transmit_data[8] = byte_data[2];
-    transmit_data[9] = byte_data[3];
-    transmit_data[10] = byte_data[4];
-    transmit_data[11] = byte_data[5];
-    byte_data = (uint8_t*)magnet_data;
-    transmit_data[12] = byte_data[0];
-    transmit_data[13] = byte_data[1];
-    transmit_data[14] = byte_data[2];
-    transmit_data[15] = byte_data[3];
-    transmit_data[16] = byte_data[4];
-    transmit_data[17] = byte_data[5];
+    memcpy(transmit_data, accel_data, sizeof(int16_t)*3);
+    memcpy(transmit_data+sizeof(int16_t)*3, magnet_data, sizeof(int16_t)*3);
+    memcpy(transmit_data+sizeof(int16_t)*6, gyro_data, sizeof(int16_t)*3);
+
+    // for(int i = 0; i < 18; ++i)
+    // {
+    //   printf("%d,", transmit_data[i]);
+    // }
+    // printf("\n");
     osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startReadMpu9250Task */
