@@ -529,21 +529,21 @@ void startTcpTransmitTask(void *argument)
 void startReadMpu9250Task(void *argument)
 {
   /* USER CODE BEGIN startReadMpu9250Task */
-  int16_t accel_data[3], magnet_data[3], gyro_data[3];
+  int16_t accel_data[3], gyro_data[3], magnet_data[3];
   /* Infinite loop */
   for(;;)
   {
     MPU9250_GetData(accel_data, magnet_data, gyro_data);
     // fill data
     memcpy(transmit_data, accel_data, sizeof(int16_t)*3);
-    memcpy(transmit_data+sizeof(int16_t)*3, magnet_data, sizeof(int16_t)*3);
-    memcpy(transmit_data+sizeof(int16_t)*6, gyro_data, sizeof(int16_t)*3);
+    memcpy(transmit_data+sizeof(int16_t)*3, gyro_data, sizeof(int16_t)*3);
+    memcpy(transmit_data+sizeof(int16_t)*6, magnet_data, sizeof(int16_t)*3);
 
-    // for(int i = 0; i < 18; ++i)
-    // {
-    //   printf("%d,", transmit_data[i]);
-    // }
-    // printf("\n");
+    for(int i = 0; i < 18; ++i)
+    {
+      printf("%d,", transmit_data[i]);
+    }
+    printf("\n");
     osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startReadMpu9250Task */
