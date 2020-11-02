@@ -539,11 +539,11 @@ void startReadMpu9250Task(void *argument)
     memcpy(transmit_data+sizeof(int16_t)*3, gyro_data, sizeof(int16_t)*3);
     memcpy(transmit_data+sizeof(int16_t)*6, magnet_data, sizeof(int16_t)*3);
 
-    for(int i = 0; i < 18; ++i)
-    {
-      printf("%d,", transmit_data[i]);
-    }
-    printf("\n");
+    // for(int i = 0; i < 18; ++i)
+    // {
+    //   printf("%d,", transmit_data[i]);
+    // }
+    // printf("\n");
     osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startReadMpu9250Task */

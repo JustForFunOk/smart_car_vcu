@@ -3,6 +3,6 @@
 
 #define TRANSMIT_DATA_LENGTH  18  // review this value after change message fromat
 
-#define TRANSMIT_PERIOD_MS    1000  // 1Hz  20  // 50Hz
+#define TRANSMIT_PERIOD_MS    100  // 10Hz  20  // 50Hz
 
 #endif
