@@ -23,12 +23,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>  // printf
-#include <string.h>  // memcmp
-#include "socket.h"  // ctlnetwork reg_wizchip_cs_cbfunc reg_wizchip_spi_cbfunc
-#include "tcp_server.h"
 #include "mpu9250.h"
-#include "txd_config.h"
+#include "w5500_tcp.h"
+#include <string.h>  // memcmp
+#include <stdio.h>  // printf
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,10 +72,7 @@ const osThreadAttr_t ReadMpu9250Task_attributes = {
   .stack_size = 128 * 4
 };
 /* USER CODE BEGIN PV */
-uint16_t destport = 5000;
-uint8_t receive_buff[2048];
-// uint8_t transmit_buff[] = "hello client\n";
-uint8_t transmit_data[TRANSMIT_DATA_LENGTH];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -96,71 +91,7 @@ void startReadMpu9250Task(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void W5500_Select(void)
-{
-  HAL_GPIO_WritePin(W5500_CS_GPIO_Port, W5500_CS_Pin, GPIO_PIN_RESET);
-}
 
-void W5500_Unselect(void)
-{
-  HAL_GPIO_WritePin(W5500_CS_GPIO_Port, W5500_CS_Pin, GPIO_PIN_SET);
-}
-
-void W5500_Restart(void)
-{
-  HAL_GPIO_WritePin(W5500_RST_GPIO_Port, W5500_RST_Pin, GPIO_PIN_RESET);
-  HAL_Delay(1);  // delay 1ms
-  HAL_GPIO_WritePin(W5500_RST_GPIO_Port, W5500_RST_Pin, GPIO_PIN_SET);
-  HAL_Delay(1600);  // delay 1600ms
-}
-
-void W5500_ReadBuff(uint8_t* buff, uint16_t len)
-{
-  HAL_SPI_Receive(&hspi2, buff, len, HAL_MAX_DELAY);
-}
-
-void W5500_WriteBuff(uint8_t* buff, uint16_t len)
-{
-  HAL_SPI_Transmit(&hspi2, buff, len, HAL_MAX_DELAY);
-}
-
-uint8_t W5500_ReadByte(void)
-{
-  uint8_t byte;
-  W5500_ReadBuff(&byte, sizeof(byte));
-  return byte;
-}
-
-void W5500_WriteByte(uint8_t byte)
-{
-  W5500_WriteBuff(&byte, sizeof(byte));
-}
-
-wiz_NetInfo gSetNetInfo ={
-  .mac  = {0x00, 0x08, 0xdc, 0x11, 0x11, 0x11},
-  .ip   = {192, 168, 3, 99},
-  .sn   = {255, 255, 255, 0},
-  .gw   = {192, 168, 3, 1},
-  .dns  = {144, 144, 144, 144},
-  .dhcp = NETINFO_STATIC};
-
-wiz_NetInfo gGetNetInfo;
-
-enum Status
-{
-  Failed = 0,
-  Success = 1
-};
-
-/**
- * @brief valid the result of set net info
- * @return 1: Success
- *         0: Failed
-*/
-uint8_t validSetNetInfoResult(wiz_NetInfo* _set, wiz_NetInfo* _get)
-{
-  return (!memcmp(_set, _get, sizeof(wiz_NetInfo)));  // if same, memcmp return 0
-}
 /* USER CODE END 0 */
 
 /**
@@ -196,37 +127,7 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   MPU9250_Init();
-
-  reg_wizchip_cs_cbfunc(W5500_Select, W5500_Unselect);
-  reg_wizchip_spi_cbfunc(W5500_ReadByte, W5500_WriteByte);
-
-  W5500_Restart();  // hardware restart through RESET pin
-
-  ctlnetwork(CN_SET_NETINFO, (void*)&gSetNetInfo);  // set net info
-  // maybe need delay
-  ctlnetwork(CN_GET_NETINFO, (void*)&gGetNetInfo);  // get net info
-
-  if(Success == validSetNetInfoResult(&gSetNetInfo, &gGetNetInfo))  // compare
-  {
-    printf("Net info set success!\n");
-  }
-  else
-  {
-    printf("Net info set failed!\n");
-    // do something
-  }
-
-  // W5500 has 8 channel, 32k buffer, 2 means 2KBytes
-  uint8_t buffer_size_8channel_tx_rx[16] = {2, 2, 2, 2, 2, 2, 2, 2,  // 8 channel tx
-                                            2, 2, 2, 2, 2, 2, 2, 2}; // 8 channel rx
-  if(ctlwizchip(CW_INIT_WIZCHIP,(void*)buffer_size_8channel_tx_rx))
-  {
-    // failed
-    printf("buffer size set failed!\n");
-  }
-
-  // set sever ip and port
-  uint8_t destip[4] = {192, 168, 3, 107};
+  W5500_Init();
 
   /* USER CODE END 2 */
 
@@ -491,7 +392,7 @@ void startTcpReceiveTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    if(tcpServerReceive(W5500_TCP_SOCKET_CHANNEL, receive_buff, destport) > 0)
+    if(tcpServerReceive(W5500_TCP_SOCKET_CHANNEL, receive_buff, TCP_SERVER_PORT) > 0)
     {
       printf("%s\n", receive_buff);
     }
@@ -513,7 +414,7 @@ void startTcpTransmitTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_data, TRANSMIT_DATA_LENGTH, destport);  // strlen(transmit_data)
+    tcpServerTransmit(W5500_TCP_SOCKET_CHANNEL, transmit_data, TRANSMIT_DATA_LENGTH, TCP_SERVER_PORT);  // strlen(transmit_data)
     osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startTcpTransmitTask */
@@ -539,11 +440,11 @@ void startReadMpu9250Task(void *argument)
     memcpy(transmit_data+sizeof(int16_t)*3, gyro_data, sizeof(int16_t)*3);
     memcpy(transmit_data+sizeof(int16_t)*6, magnet_data, sizeof(int16_t)*3);
 
-    // for(int i = 0; i < 18; ++i)
-    // {
-    //   printf("%d,", transmit_data[i]);
-    // }
-    // printf("\n");
+    for(int i = 0; i < 18; ++i)
+    {
+      printf("%d,", transmit_data[i]);
+    }
+    printf("\n");
     osDelay(TRANSMIT_PERIOD_MS);
   }
   /* USER CODE END startReadMpu9250Task */

@@ -43,6 +43,7 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 extern I2C_HandleTypeDef hi2c1;
+extern SPI_HandleTypeDef hspi2;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
