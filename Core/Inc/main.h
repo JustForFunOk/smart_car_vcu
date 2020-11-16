@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -43,6 +43,7 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 extern I2C_HandleTypeDef hi2c1;
+extern I2C_HandleTypeDef hi2c2;
 extern SPI_HandleTypeDef hspi2;
 /* USER CODE END EC */
 
@@ -61,6 +62,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define SYS_LED_Pin GPIO_PIN_3
 #define SYS_LED_GPIO_Port GPIOA
+#define STANDARD_IIC_SCL_Pin GPIO_PIN_10
+#define STANDARD_IIC_SCL_GPIO_Port GPIOB
+#define STANDARD_IIC_SDA_Pin GPIO_PIN_11
+#define STANDARD_IIC_SDA_GPIO_Port GPIOB
 #define W5500_CS_Pin GPIO_PIN_12
 #define W5500_CS_GPIO_Port GPIOB
 #define W5500_SCLK_Pin GPIO_PIN_13
