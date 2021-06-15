@@ -1,6 +1,9 @@
 # debug folder
 /[Dd]ebug/
 
+# release folder
+/[Rr]elease
+
 #
 /.settings/
 
